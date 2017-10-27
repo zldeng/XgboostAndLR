@@ -25,7 +25,7 @@ class XGBoostLR(object):
 	'''
 	def __init__(self,xgb_model_name,lr_model_name,
 			one_hot_encoder_model_name,
-			xgb_eval_metric = 'mlogloss',xgb_nthread = 16):
+			xgb_eval_metric = 'mlogloss',xgb_nthread = 32,n_estimators = 100):
 		self.xgb_model_name = xgb_model_name
 		self.lr_model_name = lr_model_name
 		self.one_hot_encoder_model_name = one_hot_encoder_model_name
@@ -36,27 +36,34 @@ class XGBoostLR(object):
 
 	def trainModel(self,train_x,train_y):
 		#train a xgboost model
+		sys.stdout.flush()
 		self.xgb_clf = xgb.XGBClassifier(nthread = self.xgb_nthread)
 		self.xgb_clf.fit(train_x,train_y,eval_metric = self.xgb_eval_metric,
 				eval_set = [(train_x,train_y)])
 
 		xgb_eval_result = self.xgb_clf.evals_result()
 		print 'XGB_train eval_result:',xgb_eval_result
+		sys.stdout.flush()
 
 		train_x_mat = DMatrix(train_x)
-		
+		print 'get boost tree leaf info...'	
 		train_xgb_pred_mat = self.xgb_clf.get_booster().predict(train_x_mat,
 				pred_leaf = True)
+		print 'get boost tree leaf info done\n'
 		
+		print 'begin one-hot encoding...'
 		self.one_hot_encoder = OneHotEncoder()
 		train_lr_feature_mat = self.one_hot_encoder.fit_transform(train_xgb_pred_mat)
+		print 'one-hot encoding done!\n\n'
 		print 'train_mat:',train_lr_feature_mat.shape
+		sys.stdout.flush()
 		#train a LR model
 		self.lr_clf = LR()
 		self.lr_clf.fit(train_lr_feature_mat,train_y)
 		
 		self.init_flag = True
-
+		
+		print 'dump xgboost+lr model..'
 		pickle.dump(self.xgb_clf,file(self.xgb_model_name,'wb'),True)
 		pickle.dump(self.lr_clf,file(self.lr_model_name,'wb'),True)
 		pickle.dump(self.one_hot_encoder,file(self.one_hot_encoder_model_name,'wb'),True)

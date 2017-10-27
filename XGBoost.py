@@ -19,7 +19,7 @@ class XGBoost(object):
 	'''
 	xgboost model for text classification
 	'''
-	def __init__(self,xgb_model_name,nthread =16,
+	def __init__(self,xgb_model_name,nthread =30,
 			eval_metric = 'mlogloss'):
 		self.nthread = nthread
 		self.eval_metric = eval_metric

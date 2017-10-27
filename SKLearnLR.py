@@ -30,7 +30,7 @@ class SKLearnLR(object):
 		
 	def loadModel(self):
 		try:
-			pickle.load(file(self.lr_model_name,'rb'))
+			self.clf = pickle.load(file(self.lr_model_name,'rb'))
 			self.init_flag = True
 		
 		except Exception,e:
@@ -39,7 +39,7 @@ class SKLearnLR(object):
 	
 	def testModel(self,test_x,test_y):
 		if not self.init_flag:
-			self.loadModel(self.lr_model_name)
+			self.loadModel()
 
 		pred_y = self.clf.predict(test_x)
 		

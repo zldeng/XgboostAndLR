@@ -18,7 +18,7 @@ def loadData(data_file):
 	data_y = []	
 
 	for line in file(data_file):
-		line_list = line.strip().split(' ')
+		line_list = line.strip().split('\t')
 
 		info_data = ' '.join(line_list[1:])
 		tag = line_list[0].strip()

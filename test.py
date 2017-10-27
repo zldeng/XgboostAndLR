@@ -34,7 +34,7 @@ xgbLr_lr_model_name = model_path + 'xgb_lr.lr.model'
 one_hot_encoder_model_name = model_path + 'xgb_lr_one_hot_encoder.model'
 
 
-def train(train_data_file,test_data_file):
+def train(train_data_file):
 	train_x,train_y = loadData(train_data_file)
 
 	feature_transfor = FeatureModel(tfidf_model_name,best_feature_model_name)
@@ -44,26 +44,25 @@ def train(train_data_file,test_data_file):
 
 	model_train_x_feature = feature_transfor.transform(train_x)
 
-	test_x,test_y = loadData(test_data_file)
-	model_test_x_feature = feature_transfor.transform(test_x)
-	
 	#train a single xgboost model
+	print 'train a single xgboost model...'
 	xgb_clf = XGBoost(xgb_model_name)
 	xgb_clf.trainModel(model_train_x_feature,train_y)
+	print 'train single xgboost model done!\n\n'
 	
 	#train a single LR model
+	print 'train a single LR model...'
 	lr_clf = SKLearnLR(sk_lr_model_name)
 	lr_clf.trainModel(model_train_x_feature,train_y)
+	print 'train a single LR model done!\n\n'
 
+	#return 
 	#train a XGBoost + LR model
+	print 'train a xgboost+lr model'
 	xgb_lr_clf = XGBoostLR(xgbLr_xgb_model_name,xgbLr_lr_model_name,one_hot_encoder_model_name)
 	xgb_lr_clf.trainModel(model_train_x_feature,train_y)
+	print 'train xgboost+lr model done\n\n'
 	
-	#option
-	xgb_clf.testModel(model_test_x_feature,test_y)
-	lr_clf.testModel(model_test_x_feature,test_y)
-	xgb_lr_clf.testModel(model_test_x_feature,test_y)
-
 	print 'Train Done'
 
 def test(test_data_file):
@@ -76,11 +75,13 @@ def test(test_data_file):
 
 	xgb_clf = XGBoost(xgb_model_name)
 	xgb_clf.testModel(model_test_x_feature,test_y)
+	
 
 	lr_clf = SKLearnLR(sk_lr_model_name)
 	lr_clf.testModel(model_test_x_feature,test_y)
 
-	xgb_lr_clf = XGBoostLR(xgbLr_xgb_model_name,xgbLr_lr_model_name)
+	#return
+	xgb_lr_clf = XGBoostLR(xgbLr_xgb_model_name,xgbLr_lr_model_name,one_hot_encoder_model_name)
 	xgb_lr_clf.testModel(model_test_x_feature,test_y)
 
 
@@ -89,5 +90,7 @@ if __name__ == '__main__':
 	train_data_file = './data/train.data'
 	test_data_file = './data/test.data'
 
-	train(train_data_file,test_data_file)
+	train(train_data_file)
+
+	test(test_data_file)
 
